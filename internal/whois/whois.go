@@ -98,13 +98,29 @@ func NewClient() client.Client {
 	return whoisClient{}
 }
 
+// stripComments drops whois comment lines ("#" or "%" prefixed): on some
+// registries (e.g. IIS for .se/.nu) the header disclaimer matches expiryRE
+// before the actual expiry field does.
+func stripComments(body string) string {
+	lines := strings.Split(body, "\n")
+	kept := make([]string, 0, len(lines))
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(trimmed, "#") || strings.HasPrefix(trimmed, "%") {
+			continue
+		}
+		kept = append(kept, line)
+	}
+	return strings.Join(kept, "\n")
+}
+
 func (c whoisClient) ExpireTime(ctx context.Context, domain string, host string) (time.Time, error) {
 	log.Debug().Msgf("trying whois client for %q", domain)
 	body, err := c.request(ctx, domain, host)
 	if err != nil {
 		return time.Now(), err
 	}
-	result := expiryRE.FindStringSubmatch(body)
+	result := expiryRE.FindStringSubmatch(stripComments(body))
 	if len(result) < 2 {
 		return time.Now(), fmt.Errorf("could not parse whois response: %q", body)
 	}
