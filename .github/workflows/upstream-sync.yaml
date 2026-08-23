@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: upstream-sync
@@ -67,3 +68,13 @@ jobs:
       - name: Push
         if: env.changed == 'true'
         run: git push origin HEAD:main
+
+      # pushes made with GITHUB_TOKEN do not trigger push workflows, so ci
+      # and the image rebuild have to be dispatched explicitly
+      - name: Trigger ci and image rebuild
+        if: env.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run build.yml --ref main
+          gh workflow run docker.yml --ref main
