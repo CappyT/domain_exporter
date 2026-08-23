@@ -1,0 +1,55 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: upstream-sync
+
+on:
+  schedule:
+    # every monday at 04:17 UTC
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: upstream-sync
+  cancel-in-progress: false
+
+env:
+  UPSTREAM_URL: https://github.com/caarlos0/domain_exporter.git
+  UPSTREAM_BRANCH: main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Merge upstream
+        run: |
+          set -euo pipefail
+          git remote add upstream "$UPSTREAM_URL"
+          git fetch upstream "$UPSTREAM_BRANCH"
+          if git merge-base --is-ancestor "upstream/$UPSTREAM_BRANCH" HEAD; then
+            echo "already up to date with upstream/$UPSTREAM_BRANCH"
+            echo "changed=false" >> "$GITHUB_ENV"
+            exit 0
+          fi
+          if ! git merge --no-edit "upstream/$UPSTREAM_BRANCH"; then
+            echo "::error::merge conflict against upstream/$UPSTREAM_BRANCH - resolve it manually, never auto-resolve"
+            git diff --name-only --diff-filter=U | sed 's/^/conflict: /'
+            git merge --abort || true
+            exit 1
+          fi
+          echo "changed=true" >> "$GITHUB_ENV"
+
+      - name: Push
+        if: env.changed == 'true'
+        run: git push origin HEAD:main
