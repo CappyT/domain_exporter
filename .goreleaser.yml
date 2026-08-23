@@ -1,23 +1,54 @@
-# yaml-language-server: $schema=https://goreleaser.com/static/schema-pro.json
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+#
+# Fork-local, GoReleaser OSS config. Upstream ships a goreleaser-pro config
+# (remote `includes`, gemfury, twitter, caarlos0's Docker Hub) that cannot run
+# here: it needs a GORELEASER_KEY and secrets this fork does not have.
+# Container images are built and pushed by .github/workflows/docker.yml.
 version: 2
-variables:
-  description: Exports the expiration time of your domains in the Prometheus format.
 
-includes:
-  - from_url:
-      url: https://raw.githubusercontent.com/caarlos0/goreleaserfiles/main/build.yml
-  - from_url:
-      url: https://raw.githubusercontent.com/caarlos0/goreleaserfiles/main/release.yml
-  - from_url:
-      url: https://raw.githubusercontent.com/caarlos0/goreleaserfiles/main/package.yml
-  - from_url:
-      url: https://raw.githubusercontent.com/caarlos0/goreleaserfiles/main/docker_v2.yml
-  - from_url:
-      url: https://raw.githubusercontent.com/caarlos0/goreleaserfiles/main/cosign_checksum.yml
-  - from_url:
-      url: https://raw.githubusercontent.com/caarlos0/goreleaserfiles/main/cosign_docker.yml
-  - from_url:
-      url: https://raw.githubusercontent.com/caarlos0/goreleaserfiles/main/sbom.yml
+project_name: domain_exporter
 
-gemfury:
-  - account: caarlos0
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+
+archives:
+  - formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files:
+      - README.md
+      - LICENSE.md
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  use: github
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore"
+      - "^ci"
+
+release:
+  prerelease: auto
