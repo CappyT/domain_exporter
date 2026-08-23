@@ -1,0 +1,20 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "forkProcessing": "enabled",
+  "dependencyDashboard": true,
+  "platformAutomerge": true,
+  "minimumReleaseAge": "3 days",
+  "packageRules": [
+    {
+      "description": "automerge everything but majors: patch/minor/digest/pin are safe to land unattended",
+      "matchUpdateTypes": ["patch", "minor", "digest", "pin", "pinDigest"],
+      "automerge": true
+    },
+    {
+      "description": "majors always stay manual",
+      "matchUpdateTypes": ["major"],
+      "automerge": false
+    }
+  ]
+}
