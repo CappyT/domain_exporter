@@ -1,0 +1,15 @@
+# Fork-owned CI files: never take upstream's version when merging
+# caarlos0/domain_exporter into this fork. These files diverge on purpose
+# (floating action majors, ghcr publishing, goreleaser OSS instead of pro)
+# and Renovate keeps them current, so upstream's edits are deliberately dropped.
+#
+# The "ours" merge driver is NOT builtin - it only works where
+# `git config merge.ours.driver true` has been set. The upstream-sync workflow
+# sets it; if you run the merge locally, set it in your clone too or these
+# attributes are inert and you get normal conflicts.
+.github/workflows/build.yml merge=ours
+.github/workflows/lint.yml merge=ours
+.github/workflows/goreleaser.yml merge=ours
+.github/workflows/docker.yml merge=ours
+.goreleaser.yml merge=ours
+renovate.json merge=ours

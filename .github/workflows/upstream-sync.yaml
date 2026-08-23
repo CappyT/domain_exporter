@@ -27,10 +27,24 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Configure git identity
+      - name: Configure git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # The `merge=ours` attributes in .gitattributes are inert unless this
+          # driver is defined - "ours" is NOT one of git's builtin drivers
+          # (only text/binary/union are). `true` exits 0 without touching %A,
+          # which git pre-populates with our version, so our side wins.
+          #
+          # CAVEAT, on purpose: upstream's improvements to the fork-owned CI
+          # files (.github/workflows/{build,lint,goreleaser,docker}.yml,
+          # .goreleaser.yml, renovate.json) are silently DROPPED on every sync.
+          # This fork owns them - they run OSS goreleaser, push to our ghcr
+          # namespace and use floating action majors - and Renovate keeps them
+          # fresh, so upstream's SHA bumps there are noise, not value.
+          # Everything else (source, docs, go.mod) merges normally and a real
+          # conflict still fails this job loudly for a human to resolve.
+          git config merge.ours.driver true
 
       - name: Merge upstream
         run: |
