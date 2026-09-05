@@ -13,6 +13,8 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 )
 
+require go.yaml.in/yaml/v3 v3.0.5 // indirect
+
 require (
 	github.com/PuerkitoBio/goquery v1.11.0 // indirect
 	github.com/alecthomas/units v0.0.0-20240927000941-0f3dac36c52b // indirect
@@ -30,7 +32,7 @@ require (
 	github.com/prometheus/common v0.70.1 // indirect
 	github.com/prometheus/procfs v0.21.1 // indirect
 	github.com/saintfish/chardet v0.0.0-20230101081208-5e3ef4b5456d // indirect
-	github.com/stretchr/testify v1.11.1
+	github.com/stretchr/testify v1.12.1
 	github.com/xhit/go-str2duration/v2 v2.1.0 // indirect
 	github.com/zonedb/zonedb v1.0.5513 // indirect
 	go.yaml.in/yaml/v2 v2.4.4 // indirect
