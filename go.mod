@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/domainr/whois v0.1.0
-	github.com/openrdap/rdap v0.10.1
+	github.com/openrdap/rdap v0.10.2
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/prometheus/client_golang v1.25.0
 	github.com/rs/zerolog v1.35.1
