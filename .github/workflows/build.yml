@@ -6,6 +6,9 @@ on:
       - "main"
     tags:
       - "v*"
+  # dispatched by upstream-sync after merging, since GITHUB_TOKEN pushes
+  # do not retrigger push workflows
+  workflow_dispatch:
   pull_request:
 
 jobs:
